@@ -1,0 +1,13 @@
+{
+	"manifest_version": 2,
+	"name": "niconico-yt",
+	"version": "1.0",
+	"description": "NicoNico style comments on Youtube",
+	
+	"content_scripts": [
+		{
+			"matches": ["*://*.youtube.com/watch*"],
+			"js": ["content_scripts/niconico.js"]
+		}
+	]
+}
