@@ -6,11 +6,15 @@
 	"permissions" : [
 		"*://*.googleapis.com/youtube/v3/commentThreads/*",
 		"webNavigation",
+		"tabs"
 	],
+	"background": {
+		"scripts": ["background.js"]
+	},
 	"content_scripts": [
 		{
 			"matches": ["*://*.youtube.com/watch*"],
-			"js": ["content_scripts/niconico.js"]
+			"js": ["content.js"]
 		}
 	]
 }
