@@ -3,7 +3,10 @@
 	"name": "niconico-yt",
 	"version": "1.0",
 	"description": "NicoNico style comments on Youtube",
-	"permissions" : ["*://*.googleapis.com/youtube/v3/commentThreads/*"],
+	"permissions" : [
+		"*://*.googleapis.com/youtube/v3/commentThreads/*",
+		"webNavigation",
+	],
 	"content_scripts": [
 		{
 			"matches": ["*://*.youtube.com/watch*"],
