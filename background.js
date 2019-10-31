@@ -1,27 +1,40 @@
 
 const API_KEY = "<api key>";
 
+// Fix this for multiple videos?
+let tabId = "";
+let videoId = "";
+let nextPageToken = "";
+
 /**
  * Retrieve comments
- * @param {*} apiKey 
- * @param {*} videoId 
  */
-async function getComments(apiKey, videoId) {
-    const resp = await fetch(`https://www.googleapis.com/youtube/v3/commentThreads?key=${apiKey}&textFormat=plainText&part=snippet&videoId=${videoId}&maxResults=10`);
+async function getComments() {
+    const resp = await fetch(`https://www.googleapis.com/youtube/v3/commentThreads?key=${API_KEY}&textFormat=plainText&part=snippet&videoId=${videoId}&maxResults=10&pageToken=${nextPageToken}`);
     const data = await resp.json();
 
+    nextPageToken = data['nextPageToken'];
     return data['items'].map(x => x['snippet']['topLevelComment']['snippet']['textDisplay']);
 }
 
-function updateCommentHandler(details) {
-    const VIDEO_ID = details.url.match(/v=(.*)/)[1];
-    getComments(API_KEY, VIDEO_ID)
+function updateComments(reset=false) {
+    getComments()
         .then(commentTexts => {
-            console.log(commentTexts);
-            chrome.tabs.sendMessage(details.tabId, commentTexts);
+            chrome.tabs.sendMessage(tabId, {
+                reset: reset,
+                commentTexts: commentTexts,
+            });
         });
 }
 
-chrome.webNavigation.onHistoryStateUpdated.addListener(updateCommentHandler);
-chrome.webNavigation.onCompleted.addListener(updateCommentHandler);
+function initCommentHandler(details) {
+    tabId = details.tabId;
+    videoId = details.url.match(/v=(.*)/)[1];
+    nextPageToken = "";
+    updateComments(true);
+}
+
+setInterval(updateComments, 30_000);
+chrome.webNavigation.onHistoryStateUpdated.addListener(initCommentHandler);
+chrome.webNavigation.onCompleted.addListener(initCommentHandler);
 

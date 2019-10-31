@@ -3,6 +3,10 @@
 	"name": "niconico-yt",
 	"version": "1.0",
 	"description": "NicoNico style comments on Youtube",
+	"icons": {
+		"48": "icons/logo_48.png",
+		"96": "icons/logo_96.png"
+	},
 	"permissions" : [
 		"*://*.googleapis.com/youtube/v3/commentThreads/*",
 		"webNavigation",
