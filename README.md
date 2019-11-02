@@ -1,8 +1,8 @@
 # niconico-yt
 
-NicoNico style comments on Youtube
-
 ![logo](./icons/logo_96.png)
+
+2000s NicoNico style comments on Youtube
 
 ## Setup
   - Setting up for development:

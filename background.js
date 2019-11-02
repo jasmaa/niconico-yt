@@ -17,21 +17,30 @@ async function getComments() {
     return data['items'].map(x => x['snippet']['topLevelComment']['snippet']['textDisplay']);
 }
 
-function updateComments(reset=false) {
+/**
+ * Send comments to content script
+ * @param {boolean} reset 
+ */
+function updateComments(options = {}) {
     getComments()
         .then(commentTexts => {
             chrome.tabs.sendMessage(tabId, {
-                reset: reset,
                 commentTexts: commentTexts,
+                options: options,
             });
         });
 }
 
 function initCommentHandler(details) {
+
     tabId = details.tabId;
-    videoId = details.url.match(/v=(.*)/)[1];
-    nextPageToken = "";
-    updateComments(true);
+    if (details.url.match(/v=(.*)/) != null) {
+        videoId = details.url.match(/v=(.*)/)[1];
+        nextPageToken = "";
+        updateComments({ reset: true });
+
+        console.log(videoId);
+    }
 }
 
 setInterval(updateComments, 30_000);
