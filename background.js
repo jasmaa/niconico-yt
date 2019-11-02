@@ -70,7 +70,7 @@ function updateHandler() {
 }
 
 
-chrome.tabs.getAllInWindow(null, tabs => {
+chrome.tabs.query({currentWindow: true}, tabs => {
     for (const tab of tabs) {
         const videoId = getVideoId(tab.url);
         if (videoId) {
