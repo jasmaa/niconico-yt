@@ -15,7 +15,6 @@ ctx.lineWidth = 3;
 ctx.lineCap = 'round';
 ctx.font = `${FONT_SIZE}px Arial`;
 
-
 let comments = [];
 for (let i = 0; i < 10; i++) {
 	comments.push({
