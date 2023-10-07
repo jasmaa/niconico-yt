@@ -8,9 +8,7 @@
 		"96": "icons/logo_96.png"
 	},
 	"permissions" : [
-		"*://*.googleapis.com/youtube/v3/commentThreads/*",
-		"webNavigation",
-		"tabs"
+		"*://*.googleapis.com/youtube/v3/commentThreads/*"
 	],
 	"background": {
 		"scripts": ["background.js"]
