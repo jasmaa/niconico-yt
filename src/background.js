@@ -1,4 +1,4 @@
-const API_KEY = "<REPLACE ME>";
+const API_KEY = process.env.API_KEY;
 
 /**
  * Fetches set of comments from video
