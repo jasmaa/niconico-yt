@@ -29,6 +29,10 @@ function parseVideoTimestamps(text) {
 }
 
 (() => {
+	const FONT_SIZE = 30;
+	const SPEED = 200;
+	const COMMENT_TEXT_MAX_LENGTH = 200;
+
 	const videoStream = document.getElementsByClassName('video-stream')[0];
 	const player = document.getElementById("movie_player");
 	const container = player.getElementsByClassName("html5-video-container")[0];
@@ -41,30 +45,12 @@ function parseVideoTimestamps(text) {
 	container.appendChild(canvas);
 
 	const ctx = canvas.getContext('2d');
-	const FONT_SIZE = 30;
 	ctx.fillStyle = 'white';
 	ctx.lineWidth = 3;
 	ctx.lineCap = 'round';
 	ctx.font = `${FONT_SIZE}px Arial`;
 
-	const SPEED = 100;
-	const COMMENT_TEXT_MAX_LENGTH = 200;
-
 	let comments = [];
-
-	let currentUrl = window.location.href;
-	let videoId = getVideoId();
-	let pageToken = null;
-	new MutationObserver(() => {
-		const url = window.location.href;
-		if (url !== currentUrl) {
-			currentUrl = window.location.href;
-			videoId = getVideoId();
-			pageToken = null;
-			comments = [];
-			updateComments();
-		}
-	}).observe(document, { subtree: true, childList: true });
 
 	async function updateComments() {
 		const res = await chrome.runtime.sendMessage({
@@ -79,17 +65,30 @@ function parseVideoTimestamps(text) {
 					comments.push({
 						text: commentText,
 						time: videoTimestamp,
+						y: (canvas.height - FONT_SIZE) * Math.random() + FONT_SIZE,
 					});
 				}
 			}
 		}
 
 		pageToken = res.nextPageToken
-		console.log(res);
 	}
 
 	updateComments();
 	setInterval(updateComments, 1_000);
+
+	let currentUrl = window.location.href;
+	let videoId = getVideoId();
+	let pageToken = null;
+	new MutationObserver(() => {
+		const url = window.location.href;
+		if (url !== currentUrl) {
+			currentUrl = window.location.href;
+			videoId = getVideoId();
+			pageToken = null;
+			comments = [];
+		}
+	}).observe(document, { subtree: true, childList: true });
 
 	const draw = () => {
 		requestAnimationFrame(draw);
@@ -97,14 +96,15 @@ function parseVideoTimestamps(text) {
 		const currentTime = videoStream.currentTime;
 
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
-		ctx.strokeText(currentTime, 20, 20);
-		ctx.fillText(currentTime, 20, 20);
 
 		for (const comment of comments) {
 			const x = canvas.width / 2 + SPEED * (comment.time - currentTime);
-			const y = (comment.text.length * 50) % (canvas.height - 20) + 10; // TODO: add more entropy
-			ctx.strokeText(comment.text, x, y);
-			ctx.fillText(comment.text, x, y);
+			const y = comment.y;
+
+			if (x + comment.text.length * FONT_SIZE > -20 || x < canvas.width + 20) {
+				ctx.strokeText(comment.text, x, y);
+				ctx.fillText(comment.text, x, y);
+			}
 		}
 	}
 	draw();
