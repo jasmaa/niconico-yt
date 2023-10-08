@@ -17,13 +17,21 @@ Create a new project and enable YouTube Data API v3
 Go to Credentials and create an API key. Restrict the API key to Youtube Data
 API v3.
 
-Replace `API_KEY` variable in `background.js` with the value of the key.
+### Build extension
+
+Create `.env` from `sample.env` and replace `API_KEY` with the API key from GCP.
+
+Build extension with:
+
+```
+yarn build
+```
 
 ### Load extension
 
 - Chrome
   - Go to `chrome://extensions/`
-  - Click `Load unpacked` and select the repo folder
+  - Click `Load unpacked` and select the `dist` folder
 - Firefox
   - Go to `about:debugging`
-  - Click `Load Temporary Add-on...` and select any file in the repo folder
+  - Click `Load Temporary Add-on...` and select any file in the `dist` folder
