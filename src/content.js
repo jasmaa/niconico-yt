@@ -39,6 +39,50 @@ function parseVideoTimestamps(text) {
 	return videoTimestamps;
 }
 
+/**
+ * Map of buckets indexed by timestamp section
+ */
+class TimestampBucketMap {
+
+	/**
+	 * Create a TimestampBucketMap
+	 * 
+	 * @param {*} interval Interval of time in seconds each bucket stores data for
+	 * @param {*} replicationRange Range of neighboring buckets to replicate data into
+	 */
+	constructor(interval, replicationRange) {
+		this.interval = interval;
+		this.replicationRange = replicationRange;
+		this.buckets = new Map();
+	}
+
+	put(timestamp, data) {
+		const key = Math.floor(timestamp / this.interval);
+		for (let i = key - this.replicationRange; i <= key + this.replicationRange; i++) {
+			let bucket = this.buckets.get(i);
+			if (!bucket) {
+				bucket = [];
+				this.buckets.set(i, bucket);
+			}
+			bucket.push(data);
+		}
+	}
+
+	get(timestamp) {
+		const key = Math.floor(timestamp / this.interval);
+		const bucket = this.buckets.get(key);
+		if (bucket) {
+			return bucket;
+		} else {
+			return [];
+		}
+	}
+
+	clear() {
+		this.buckets.clear();
+	}
+}
+
 (() => {
 	const FONT_SIZE = 30;
 	const SPEED = 200;
@@ -51,7 +95,7 @@ function parseVideoTimestamps(text) {
 	let canvas;
 	let ctx;
 
-	let comments = [];
+	const comments = new TimestampBucketMap(1, 20);
 
 	async function updateComments() {
 		if (!videoId || !canvas) {
@@ -67,11 +111,12 @@ function parseVideoTimestamps(text) {
 			if (commentText.length <= COMMENT_TEXT_MAX_LENGTH) {
 				const videoTimestamps = parseVideoTimestamps(commentText);
 				for (const videoTimestamp of videoTimestamps) {
-					comments.push({
+					const comment = {
 						text: commentText,
 						time: videoTimestamp,
 						displayEntropy: Math.random(),
-					});
+					};
+					comments.put(videoTimestamp, comment);
 				}
 			}
 		}
@@ -122,7 +167,7 @@ function parseVideoTimestamps(text) {
 		}
 
 		pageToken = null;
-		comments = [];
+		comments.clear();
 		updateComments();
 		console.log("Video initialized!");
 	}
@@ -168,7 +213,8 @@ function parseVideoTimestamps(text) {
 
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-		for (const comment of comments) {
+		const timedComments = comments.get(currentTime);
+		for (const comment of timedComments) {
 			const x = canvas.width / 2 + SPEED * (comment.time - currentTime);
 			const y = (canvas.height - FONT_SIZE) * comment.displayEntropy + FONT_SIZE;
 
