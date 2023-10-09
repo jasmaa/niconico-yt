@@ -8,7 +8,7 @@ const CopyPlugin = require("copy-webpack-plugin");
 require("dotenv").config();
 
 const stylesHandler = "style-loader";
-const { version } = require('./package.json');
+const { version } = require("./package.json");
 
 module.exports = (env) => {
   const isProduction = env.NODE_ENV == "production";
