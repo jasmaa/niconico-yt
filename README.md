@@ -2,9 +2,9 @@
 
 [![Mozilla Add-on](https://img.shields.io/amo/v/niconico-yt)](https://addons.mozilla.org/en-US/firefox/addon/niconico-yt/)
 
-![logo](./icons/logo_96.png)
+NicoNico-style comments on Youtube.
 
-2000s NicoNico style comments on Youtube
+![niconico-yt screenshot](./docs/screenshot_01.png)
 
 ## Development
 
@@ -21,9 +21,10 @@ API v3.
 
 Create `.env` from `sample.env` and replace `API_KEY` with the API key from GCP.
 
-Build extension with:
+Install dependencies and build extension with:
 
 ```
+yarn install
 yarn build
 ```
 
