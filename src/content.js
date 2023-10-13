@@ -149,13 +149,20 @@ class TimestampBucketMap {
       canvas.width = player.clientWidth;
       canvas.height = player.clientHeight;
       container.appendChild(canvas);
-    }
 
-    ctx = canvas.getContext("2d");
-    ctx.fillStyle = "white";
-    ctx.lineWidth = 3;
-    ctx.lineCap = "round";
-    ctx.font = `${FONT_SIZE}px Arial`;
+      ctx = canvas.getContext("2d");
+
+      // Resize canvas
+      const resizeObserver = new ResizeObserver((entries) => {
+        ctx.canvas.width = player.clientWidth;
+        ctx.canvas.height = player.clientHeight;
+        ctx.fillStyle = "white";
+        ctx.lineWidth = 3;
+        ctx.lineCap = "round";
+        ctx.font = `${FONT_SIZE}px Arial`;
+      });
+      resizeObserver.observe(container);
+    }
   }
 
   function initVideo() {
@@ -209,7 +216,7 @@ class TimestampBucketMap {
   const draw = () => {
     requestAnimationFrame(draw);
 
-    if (!videoStream || !canvas) {
+    if (!videoStream || !canvas || !ctx) {
       return;
     }
 
