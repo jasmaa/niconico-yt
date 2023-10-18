@@ -92,7 +92,9 @@ class TimestampBucketMap {
   const SPEED = 200;
   const COMMENT_TEXT_MAX_LENGTH = 200;
   const CANVAS_ID = "niconico-yt-canvas";
+  const MAX_NUM_FETCHES = 10;
 
+  let numFetchesLeft = MAX_NUM_FETCHES;
   let videoStream;
   let player;
   let container;
@@ -106,10 +108,27 @@ class TimestampBucketMap {
       return;
     }
 
+    if (numFetchesLeft <= 0) {
+      return;
+    }
+
+    if (pageToken === undefined) {
+      return;
+    }
+
+    numFetchesLeft--;
+
     const res = await chrome.runtime.sendMessage({
       id: "fetch-comments",
       args: { videoId, pageToken },
     });
+
+    if (res.status !== 200) {
+      numFetchesLeft = 0;
+      return;
+    }
+
+    pageToken = res.nextPageToken;
 
     for (const commentText of res.commentTexts) {
       if (commentText.length <= COMMENT_TEXT_MAX_LENGTH) {
@@ -124,8 +143,6 @@ class TimestampBucketMap {
         }
       }
     }
-
-    pageToken = res.nextPageToken;
   }
 
   let currentRawUrl = window.location.href;
@@ -177,6 +194,7 @@ class TimestampBucketMap {
       return;
     }
 
+    numFetchesLeft = MAX_NUM_FETCHES;
     pageToken = null;
     comments.clear();
     updateComments();

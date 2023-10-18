@@ -4,12 +4,6 @@ const API_KEY = process.env.API_KEY;
  * Fetches set of comments from video
  */
 async function fetchComments(videoId, pageToken) {
-  if (pageToken === undefined) {
-    return {
-      commentTexts: [],
-    };
-  }
-
   const url = new URL("https://www.googleapis.com/youtube/v3/commentThreads");
   url.searchParams.append("key", API_KEY);
   url.searchParams.append("textFormat", "plainText");
@@ -21,15 +15,19 @@ async function fetchComments(videoId, pageToken) {
   }
 
   const resp = await fetch(url);
-  const data = await resp.json();
+  if (resp.status !== 200) {
+    return {
+      status: resp.status,
+      commentTexts: [],
+      nextPageToken: undefined,
+    };
+  }
 
-  const nextPageToken = data["nextPageToken"];
-  const commentTexts = data["items"].map(
-    (x) => x["snippet"]["topLevelComment"]["snippet"]["textDisplay"]
-  );
+  const data = await resp.json();
   return {
-    commentTexts,
-    nextPageToken,
+    status: resp.status,
+    commentTexts: data["items"].map((v) => v["snippet"]["topLevelComment"]["snippet"]["textDisplay"]),
+    nextPageToken: data["nextPageToken"],
   };
 }
 
