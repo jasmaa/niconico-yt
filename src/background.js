@@ -26,7 +26,9 @@ async function fetchComments(videoId, pageToken) {
   const data = await resp.json();
   return {
     status: resp.status,
-    commentTexts: data["items"].map((v) => v["snippet"]["topLevelComment"]["snippet"]["textDisplay"]),
+    commentTexts: data["items"].map(
+      (v) => v["snippet"]["topLevelComment"]["snippet"]["textDisplay"]
+    ),
     nextPageToken: data["nextPageToken"],
   };
 }
