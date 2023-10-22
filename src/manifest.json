@@ -7,7 +7,14 @@
     "48": "icons/logo_48.png",
     "96": "icons/logo_96.png"
   },
-  "permissions": ["*://*.googleapis.com/youtube/v3/commentThreads/*"],
+  "browser_action": {
+    "browser_style": true,
+    "default_popup": "popup/index.html",
+    "default_icon": {
+      "48": "icons/logo_48.png"
+    }
+  },
+  "permissions": ["tabs", "*://*.googleapis.com/youtube/v3/commentThreads/*"],
   "background": {
     "scripts": ["background.js"]
   },

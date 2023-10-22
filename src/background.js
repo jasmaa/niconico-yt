@@ -1,5 +1,11 @@
 const API_KEY = process.env.API_KEY;
 
+let state = {
+  commentsVisible: true,
+  commentOpacity: "high",
+  commentSpeed: "high",
+};
+
 /**
  * Fetches set of comments from video
  */
@@ -33,6 +39,23 @@ async function fetchComments(videoId, pageToken) {
   };
 }
 
+/**
+ * Syncs state to all content scripts
+ */
+function syncState() {
+  const syncMessage = {
+    id: "set-state",
+    args: {
+      state,
+    },
+  };
+  chrome.tabs.query({}, (tabs) => {
+    for (let i = 0; i < tabs.length; i++) {
+      chrome.tabs.sendMessage(tabs[i].id, syncMessage);
+    }
+  });
+}
+
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.id === "fetch-comments") {
     (async () => {
@@ -40,6 +63,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       const res = await fetchComments(videoId, pageToken);
       sendResponse(res);
     })();
+    return true;
+  } else if (message.id === "get-state") {
+    sendResponse(state);
+    return true;
+  } else if (message.id === "merge-state") {
+    state = { ...state, ...message.args.state };
+    syncState();
+    sendResponse(state);
     return true;
   }
 });

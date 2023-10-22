@@ -17,6 +17,10 @@ module.exports = (env) => {
     entry: {
       content: "./src/content",
       background: "./src/background.js",
+      popup: {
+        import: "./src/popup/index.js",
+        filename: "./popup/index.js",
+      },
     },
     output: {
       path: path.resolve(__dirname, "dist"),
@@ -31,6 +35,11 @@ module.exports = (env) => {
 
       new CopyPlugin({
         patterns: [
+          { from: "./src/popup/index.html", to: "./popup/index.html" },
+          {
+            from: "./src/popup/bootstrap.min.css",
+            to: "./popup/bootstrap.min.css",
+          },
           { from: "./src/icons", to: "./icons" },
           {
             from: `./src/manifest.json`,

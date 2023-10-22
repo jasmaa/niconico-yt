@@ -87,9 +87,8 @@ class TimestampBucketMap {
   }
 }
 
-(() => {
+(async () => {
   const FONT_SIZE = 30;
-  const SPEED = 200;
   const COMMENT_TEXT_MAX_LENGTH = 200;
   const CANVAS_ID = "niconico-yt-canvas";
   const MAX_NUM_FETCHES = 10;
@@ -100,6 +99,8 @@ class TimestampBucketMap {
   let container;
   let canvas;
   let ctx;
+
+  let state;
 
   const comments = new TimestampBucketMap(1, 20);
 
@@ -238,13 +239,45 @@ class TimestampBucketMap {
       return;
     }
 
+    if (!state) {
+      return;
+    }
+
     const currentTime = videoStream.currentTime;
+
+    switch (state.commentOpacity) {
+      case "high":
+        ctx.globalAlpha = 1;
+        break;
+      case "medium":
+        ctx.globalAlpha = 0.6;
+        break;
+      case "low":
+        ctx.globalAlpha = 0.3;
+        break;
+    }
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    if (!state.commentsVisible) {
+      return;
+    }
+
     const timedComments = comments.get(currentTime);
     for (const comment of timedComments) {
-      const x = canvas.width / 2 + SPEED * (comment.time - currentTime);
+      let speed = 200;
+      switch (state.commentSpeed) {
+        case "high":
+          speed = 400;
+          break;
+        case "medium":
+          speed = 200;
+          break;
+        case "low":
+          speed = 100;
+          break;
+      }
+      const x = canvas.width / 2 + speed * (comment.time - currentTime);
       const y =
         (canvas.height - FONT_SIZE) * comment.displayEntropy + FONT_SIZE;
 
@@ -254,6 +287,17 @@ class TimestampBucketMap {
       }
     }
   };
+
+  chrome.runtime.onMessage.addListener((message) => {
+    if (message.id === "set-state") {
+      state = message.args.state;
+    }
+  });
+
+  const res = await chrome.runtime.sendMessage({
+    id: "get-state",
+  });
+  state = res;
 
   initVideo();
   setInterval(updateComments, 2_000);
