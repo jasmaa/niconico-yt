@@ -10,7 +10,7 @@ export enum SpeedLevel {
   LOW = "low",
 }
 
-export interface CommentSettings {
+export interface Settings {
   commentsVisible: boolean;
   commentOpacity: OpacityLevel;
   commentSpeed: SpeedLevel;

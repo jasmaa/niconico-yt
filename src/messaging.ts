@@ -1,4 +1,4 @@
-import { CommentSettings } from "./settings";
+import { Settings } from "./settings";
 
 export enum Message {
   FETCH_COMMENTS = "fetch-comments",
@@ -26,27 +26,27 @@ export interface GetSettingsRequest {
 }
 
 export interface GetSettingsResponse {
-  settings: CommentSettings;
+  settings: Settings;
 }
 
 export interface MergeSettingsRequest {
   id: Message.MERGE_SETTINGS;
   args: {
-    settings: Partial<CommentSettings>;
+    settings: Partial<Settings>;
   };
 }
 
 export interface MergeSettingsResponse {
-  settings: CommentSettings;
+  settings: Settings;
 }
 
 export interface SetSettingsRequest {
   id: Message.SET_SETTINGS;
   args: {
-    settings: CommentSettings;
+    settings: Settings;
   };
 }
 
 export interface SetSettingsResponse {
-  settings: CommentSettings;
+  settings: Settings;
 }
