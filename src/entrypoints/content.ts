@@ -1,91 +1,7 @@
-/**
- * Checks if current url is a YouTube video url
- *
- * @param {*} YouTube video URL
- * @returns
- */
-function getIsVideoUrl(url) {
-  return url.pathname === "/watch";
-}
-
-/**
- * Gets video id from url
- *
- * @param {string} url YouTube video URL
- * @returns Video id or null if video id could not be found
- */
-function getVideoId(url) {
-  if (getIsVideoUrl(url) && url.searchParams.has("v")) {
-    return url.searchParams.get("v");
-  } else {
-    return null;
-  }
-}
-
-/**
- * Parse video timestamp in seconds from comment text
- *
- * @param {*} text Comment text
- * @returns List of video timestamps found in comment text in seconds
- */
-function parseVideoTimestamps(text) {
-  const results = text.matchAll(/(\d{1,2})(:\d{2}){1,2}/g);
-  const videoTimestamps = [...results].map((v) => {
-    const rawTimes = v.reverse().slice(0, -1);
-    return rawTimes.reduce(
-      (acc, curr, currIdx) =>
-        parseInt(acc.replace(":", "")) + curr * Math.pow(60, currIdx)
-    );
-  });
-  return videoTimestamps;
-}
-
-/**
- * Map of buckets indexed by timestamp section
- */
-class TimestampBucketMap {
-  /**
-   * Create a TimestampBucketMap
-   *
-   * @param {*} interval Interval of time in seconds each bucket stores data for
-   * @param {*} replicationRange Range of neighboring buckets to replicate data into
-   */
-  constructor(interval, replicationRange) {
-    this.interval = interval;
-    this.replicationRange = replicationRange;
-    this.buckets = new Map();
-  }
-
-  put(timestamp, data) {
-    const key = Math.floor(timestamp / this.interval);
-    for (
-      let i = key - this.replicationRange;
-      i <= key + this.replicationRange;
-      i++
-    ) {
-      let bucket = this.buckets.get(i);
-      if (!bucket) {
-        bucket = [];
-        this.buckets.set(i, bucket);
-      }
-      bucket.push(data);
-    }
-  }
-
-  get(timestamp) {
-    const key = Math.floor(timestamp / this.interval);
-    const bucket = this.buckets.get(key);
-    if (bucket) {
-      return bucket;
-    } else {
-      return [];
-    }
-  }
-
-  clear() {
-    this.buckets.clear();
-  }
-}
+import { Message } from "../messaging";
+import { CommentSettings } from "../settings";
+import { TimestampBucketMap } from "../timestampBucketMap";
+import { getIsVideoUrl, getVideoId, parseVideoTimestamps } from "../youtube";
 
 (async () => {
   const FONT_SIZE = 30;
@@ -94,13 +10,17 @@ class TimestampBucketMap {
   const MAX_NUM_FETCHES = 10;
 
   let numFetchesLeft = MAX_NUM_FETCHES;
-  let videoStream;
-  let player;
-  let container;
-  let canvas;
-  let ctx;
+  let videoStream: any;
+  let player: Element;
+  let container: Element;
+  let canvas: HTMLCanvasElement;
+  let ctx: CanvasRenderingContext2D;
 
-  let state;
+  let settings: CommentSettings;
+
+  let videoId: string;
+  let pageToken: string = null;
+  let currentRawUrl = window.location.href;
 
   const comments = new TimestampBucketMap(1, 20);
 
@@ -120,7 +40,7 @@ class TimestampBucketMap {
     numFetchesLeft--;
 
     const res = await chrome.runtime.sendMessage({
-      id: "fetch-comments",
+      id: Message.FETCH_COMMENTS,
       args: { videoId, pageToken },
     });
 
@@ -146,10 +66,6 @@ class TimestampBucketMap {
     }
   }
 
-  let currentRawUrl = window.location.href;
-  let videoId;
-  let pageToken = null;
-
   function initDom() {
     if (!player || !videoStream) {
       console.log("Missing player or video stream.");
@@ -159,11 +75,14 @@ class TimestampBucketMap {
     container = player.getElementsByClassName("html5-video-container")[0];
 
     // Add canvas to video player
-    canvas = document.getElementById(CANVAS_ID);
+    canvas = document.getElementById(CANVAS_ID) as HTMLCanvasElement;
     if (!canvas) {
       canvas = document.createElement("canvas");
       canvas.id = CANVAS_ID;
-      canvas.style = "width: 100%; position: absolute; pointer-events: none;";
+      canvas.setAttribute(
+        "style",
+        "width: 100%; position: absolute; pointer-events: none;"
+      );
       canvas.width = player.clientWidth;
       canvas.height = player.clientHeight;
       container.appendChild(canvas);
@@ -239,13 +158,13 @@ class TimestampBucketMap {
       return;
     }
 
-    if (!state) {
+    if (!settings) {
       return;
     }
 
     const currentTime = videoStream.currentTime;
 
-    switch (state.commentOpacity) {
+    switch (settings.commentOpacity) {
       case "high":
         ctx.globalAlpha = 1;
         break;
@@ -259,14 +178,14 @@ class TimestampBucketMap {
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    if (!state.commentsVisible) {
+    if (!settings.commentsVisible) {
       return;
     }
 
     const timedComments = comments.get(currentTime);
     for (const comment of timedComments) {
       let speed = 200;
-      switch (state.commentSpeed) {
+      switch (settings.commentSpeed) {
         case "high":
           speed = 400;
           break;
@@ -289,15 +208,15 @@ class TimestampBucketMap {
   };
 
   chrome.runtime.onMessage.addListener((message) => {
-    if (message.id === "set-state") {
-      state = message.args.state;
+    if (message.id === Message.SET_SETTINGS) {
+      settings = message.args.state;
     }
   });
 
   const res = await chrome.runtime.sendMessage({
-    id: "get-state",
+    id: Message.GET_SETTINGS,
   });
-  state = res;
+  settings = res;
 
   initVideo();
   setInterval(updateComments, 2_000);
