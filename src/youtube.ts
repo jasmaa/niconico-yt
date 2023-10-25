@@ -1,66 +1,72 @@
+import { FetchCommentsResponse } from "./messaging";
+
 // https://developers.google.com/youtube/v3/docs/commentThreads/list
 interface ListCommentThreadsResponse {
-  kind: string
-  etag: string
-  nextPageToken: string
+  kind: string;
+  etag: string;
+  nextPageToken: string;
   pageInfo: {
-    totalResults: number
-    resultsPerPage: number
-  }
-  items: CommentThread[]
+    totalResults: number;
+    resultsPerPage: number;
+  };
+  items: CommentThread[];
 }
 
 // https://developers.google.com/youtube/v3/docs/commentThreads#resource
 interface CommentThread {
-  kind: string
-  etag: string
-  id: string
+  kind: string;
+  etag: string;
+  id: string;
   snippet: {
-    channelId: string
-    videoId: string
-    topLevelComment: Comment
-    canReply: boolean
-    totalReplyCount: number
-    isPublic: boolean
-  }
+    channelId: string;
+    videoId: string;
+    topLevelComment: Comment;
+    canReply: boolean;
+    totalReplyCount: number;
+    isPublic: boolean;
+  };
   replies: {
-    comments: Comment[]
-  }
+    comments: Comment[];
+  };
 }
 
 // https://developers.google.com/youtube/v3/docs/comments#resource
 interface Comment {
-  kind: string
-  etag: string
-  id: string
+  kind: string;
+  etag: string;
+  id: string;
   snippet: {
-    authorDisplayName: string
-    authorProfileImageUrl: string
+    authorDisplayName: string;
+    authorProfileImageUrl: string;
     authorChannelId: {
-      value: string
-    }
-    videoId: string
-    textDisplay: string
-    textOriginal: string
-    parentId: string
-    canRate: boolean
-    viewerRating: string
-    likeCount: number
-    moderationStatus: string
-    publishedAt: Date
-    updatedAt: Date
-  }
+      value: string;
+    };
+    videoId: string;
+    textDisplay: string;
+    textOriginal: string;
+    parentId: string;
+    canRate: boolean;
+    viewerRating: string;
+    likeCount: number;
+    moderationStatus: string;
+    publishedAt: Date;
+    updatedAt: Date;
+  };
 }
 
 /**
  * Fetches set of comments from video
- * 
+ *
  * @param key YouTube API key
  * @param videoId Video id
  * @param pageToken Pagination token
  * @returns List of comment texts
  */
-export async function fetchComments(key: string, videoId: string, pageToken: string) {
+export async function fetchComments(
+  key: string,
+  videoId: string,
+  pageToken: string
+): Promise<FetchCommentsResponse> {
   const url = new URL("https://www.googleapis.com/youtube/v3/commentThreads");
   url.searchParams.append("key", key);
   url.searchParams.append("textFormat", "plainText");
@@ -83,7 +89,9 @@ export async function fetchComments(key: string, videoId: string, pageToken: str
   const data: ListCommentThreadsResponse = await resp.json();
   return {
     status: resp.status,
-    commentTexts: data.items.map((v) => v.snippet.topLevelComment.snippet.textDisplay),
+    commentTexts: data.items.map(
+      (v) => v.snippet.topLevelComment.snippet.textDisplay
+    ),
     nextPageToken: data.nextPageToken,
   };
 }

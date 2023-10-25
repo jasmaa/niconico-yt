@@ -1,4 +1,10 @@
-import { Message } from "../../messaging";
+import {
+  GetSettingsRequest,
+  GetSettingsResponse,
+  MergeSettingsRequest,
+  Message,
+} from "../../messaging";
+import { OpacityLevel, SpeedLevel } from "../../settings";
 
 const commentOpacityInputEl = document.getElementById(
   "comment-opacity-input"
@@ -16,60 +22,62 @@ const commentVisibleInputOffEl = document.getElementById(
 // TODO: replace callbacks with promises
 
 commentVisibleInputOnEl.addEventListener("change", async (e) => {
-  chrome.runtime.sendMessage({
+  const req: MergeSettingsRequest = {
     id: Message.MERGE_SETTINGS,
     args: {
-      state: {
+      settings: {
         commentsVisible: true,
       },
     },
-  });
+  };
+  chrome.runtime.sendMessage(req);
 });
 
 commentVisibleInputOffEl.addEventListener("change", async (e) => {
-  chrome.runtime.sendMessage({
+  const req: MergeSettingsRequest = {
     id: Message.MERGE_SETTINGS,
     args: {
-      state: {
+      settings: {
         commentsVisible: false,
       },
     },
-  });
+  };
+  chrome.runtime.sendMessage(req);
 });
 
 commentOpacityInputEl.addEventListener("change", async (e) => {
-  chrome.runtime.sendMessage({
+  const req: MergeSettingsRequest = {
     id: Message.MERGE_SETTINGS,
     args: {
-      state: {
-        commentOpacity: (e.target as HTMLInputElement).value,
+      settings: {
+        commentOpacity: (e.target as HTMLInputElement).value as OpacityLevel,
       },
     },
-  });
+  };
+  chrome.runtime.sendMessage(req);
 });
 
 commentSpeedInputEl.addEventListener("change", async (e) => {
-  chrome.runtime.sendMessage({
+  const req: MergeSettingsRequest = {
     id: Message.MERGE_SETTINGS,
     args: {
-      state: {
-        commentSpeed: (e.target as HTMLInputElement).value,
+      settings: {
+        commentSpeed: (e.target as HTMLInputElement).value as SpeedLevel,
       },
     },
-  });
+  };
+  chrome.runtime.sendMessage(req);
 });
 
 (async () => {
-  chrome.runtime.sendMessage(
-    {
-      id: Message.GET_SETTINGS,
-    },
-    (response) => {
-      const state = response;
-      commentVisibleInputOnEl.checked = !!state.commentsVisible;
-      commentVisibleInputOffEl.checked = !state.commentsVisible;
-      commentOpacityInputEl.value = state.commentOpacity;
-      commentSpeedInputEl.value = state.commentSpeed;
-    }
-  );
+  const req: GetSettingsRequest = {
+    id: Message.GET_SETTINGS,
+  };
+  chrome.runtime.sendMessage(req, (response: GetSettingsResponse) => {
+    const settings = response.settings;
+    commentVisibleInputOnEl.checked = !!settings.commentsVisible;
+    commentVisibleInputOffEl.checked = !settings.commentsVisible;
+    commentOpacityInputEl.value = settings.commentOpacity;
+    commentSpeedInputEl.value = settings.commentSpeed;
+  });
 })();

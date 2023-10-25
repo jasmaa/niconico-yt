@@ -1,18 +1,16 @@
-// TODO: replace any with generic
-
 /**
  * Map of buckets indexed by timestamp section
  */
-export class TimestampBucketMap {
+export class TimestampBucketMap<T> {
   private interval: number;
   private replicationRange: number;
-  private buckets: Map<number, any[]>;
+  private buckets: Map<number, T[]>;
 
   /**
    * Create a TimestampBucketMap
    *
-   * @param {*} interval Interval of time in seconds each bucket stores data for
-   * @param {*} replicationRange Range of neighboring buckets to replicate data into
+   * @param {number} interval Interval of time in seconds each bucket stores data for
+   * @param {number} replicationRange Plus-minus range of neighboring buckets to replicate data into
    */
   constructor(interval: number, replicationRange: number) {
     this.interval = interval;
@@ -20,7 +18,7 @@ export class TimestampBucketMap {
     this.buckets = new Map();
   }
 
-  put(timestamp: number, data: any) {
+  put(timestamp: number, data: T) {
     const key = Math.floor(timestamp / this.interval);
     for (
       let i = key - this.replicationRange;

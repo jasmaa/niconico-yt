@@ -1,7 +1,19 @@
-import { Message } from "../messaging";
+import {
+  FetchCommentsRequest,
+  FetchCommentsResponse,
+  GetSettingsResponse,
+  Message,
+  SetSettingsRequest,
+} from "../messaging";
 import { CommentSettings } from "../settings";
 import { TimestampBucketMap } from "../timestampBucketMap";
 import { getIsVideoUrl, getVideoId, parseVideoTimestamps } from "../youtube";
+
+interface Comment {
+  text: string;
+  time: number;
+  displayEntropy: number;
+}
 
 (async () => {
   const FONT_SIZE = 30;
@@ -22,7 +34,7 @@ import { getIsVideoUrl, getVideoId, parseVideoTimestamps } from "../youtube";
   let pageToken: string = null;
   let currentRawUrl = window.location.href;
 
-  const comments = new TimestampBucketMap(1, 20);
+  const comments = new TimestampBucketMap<Comment>(1, 20);
 
   async function updateComments() {
     if (!videoId || !canvas) {
@@ -39,10 +51,11 @@ import { getIsVideoUrl, getVideoId, parseVideoTimestamps } from "../youtube";
 
     numFetchesLeft--;
 
-    const res = await chrome.runtime.sendMessage({
+    const req: FetchCommentsRequest = {
       id: Message.FETCH_COMMENTS,
       args: { videoId, pageToken },
-    });
+    };
+    const res: FetchCommentsResponse = await chrome.runtime.sendMessage(req);
 
     if (res.status !== 200) {
       numFetchesLeft = 0;
@@ -55,7 +68,7 @@ import { getIsVideoUrl, getVideoId, parseVideoTimestamps } from "../youtube";
       if (commentText.length <= COMMENT_TEXT_MAX_LENGTH) {
         const videoTimestamps = parseVideoTimestamps(commentText);
         for (const videoTimestamp of videoTimestamps) {
-          const comment = {
+          const comment: Comment = {
             text: commentText,
             time: videoTimestamp,
             displayEntropy: Math.random(),
@@ -209,14 +222,15 @@ import { getIsVideoUrl, getVideoId, parseVideoTimestamps } from "../youtube";
 
   chrome.runtime.onMessage.addListener((message) => {
     if (message.id === Message.SET_SETTINGS) {
-      settings = message.args.state;
+      const req = message as SetSettingsRequest;
+      settings = req.args.settings;
     }
   });
 
-  const res = await chrome.runtime.sendMessage({
+  const res: GetSettingsResponse = await chrome.runtime.sendMessage({
     id: Message.GET_SETTINGS,
   });
-  settings = res;
+  settings = res.settings;
 
   initVideo();
   setInterval(updateComments, 2_000);

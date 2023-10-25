@@ -1,4 +1,11 @@
-import { Message } from "../messaging";
+import {
+  FetchCommentsRequest,
+  GetSettingsResponse,
+  MergeSettingsRequest,
+  MergeSettingsResponse,
+  Message,
+  SetSettingsRequest,
+} from "../messaging";
 import { CommentSettings, OpacityLevel, SpeedLevel } from "../settings";
 import { fetchComments } from "../youtube";
 
@@ -11,18 +18,18 @@ let settings: CommentSettings = {
 };
 
 /**
- * Syncs state to all content scripts
+ * Syncs settings to all content scripts
  */
-function syncState() {
-  const syncMessage = {
-    id: "set-state",
+function syncSettings() {
+  const req: SetSettingsRequest = {
+    id: Message.SET_SETTINGS,
     args: {
-      state: settings,
+      settings,
     },
   };
   chrome.tabs.query({}, (tabs) => {
     for (let i = 0; i < tabs.length; i++) {
-      chrome.tabs.sendMessage(tabs[i].id, syncMessage);
+      chrome.tabs.sendMessage(tabs[i].id, req);
     }
   });
 }
@@ -30,18 +37,26 @@ function syncState() {
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.id === Message.FETCH_COMMENTS) {
     (async () => {
-      const { videoId, pageToken } = message.args;
+      const req = message as FetchCommentsRequest;
+      const { videoId, pageToken } = req.args;
       const res = await fetchComments(API_KEY, videoId, pageToken);
       sendResponse(res);
     })();
     return true;
   } else if (message.id === Message.GET_SETTINGS) {
-    sendResponse(settings);
+    const res: GetSettingsResponse = {
+      settings,
+    };
+    sendResponse(res);
     return true;
   } else if (message.id === Message.MERGE_SETTINGS) {
-    settings = { ...settings, ...message.args.state };
-    syncState();
-    sendResponse(settings);
+    const req = message as MergeSettingsRequest;
+    settings = { ...settings, ...req.args.settings };
+    syncSettings();
+    const res: MergeSettingsResponse = {
+      settings,
+    };
+    sendResponse(res);
     return true;
   }
 });
