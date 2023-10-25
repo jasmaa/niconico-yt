@@ -1,18 +1,23 @@
-// TODO: replace callbacks with promises
+import { Message } from "../../messaging";
 
-const commentOpacityInputEl = document.getElementById("comment-opacity-input");
-const commentSpeedInputEl = document.getElementById("comment-speed-input");
+const commentOpacityInputEl = document.getElementById(
+  "comment-opacity-input"
+) as HTMLSelectElement;
+const commentSpeedInputEl = document.getElementById(
+  "comment-speed-input"
+) as HTMLSelectElement;
 const commentVisibleInputOnEl = document.getElementById(
   "comment-visible-input-on"
-);
+) as HTMLInputElement;
 const commentVisibleInputOffEl = document.getElementById(
   "comment-visible-input-off"
-);
-const testContent = document.getElementById("test-content");
+) as HTMLInputElement;
+
+// TODO: replace callbacks with promises
 
 commentVisibleInputOnEl.addEventListener("change", async (e) => {
   chrome.runtime.sendMessage({
-    id: "merge-state",
+    id: Message.MERGE_SETTINGS,
     args: {
       state: {
         commentsVisible: true,
@@ -23,7 +28,7 @@ commentVisibleInputOnEl.addEventListener("change", async (e) => {
 
 commentVisibleInputOffEl.addEventListener("change", async (e) => {
   chrome.runtime.sendMessage({
-    id: "merge-state",
+    id: Message.MERGE_SETTINGS,
     args: {
       state: {
         commentsVisible: false,
@@ -34,10 +39,10 @@ commentVisibleInputOffEl.addEventListener("change", async (e) => {
 
 commentOpacityInputEl.addEventListener("change", async (e) => {
   chrome.runtime.sendMessage({
-    id: "merge-state",
+    id: Message.MERGE_SETTINGS,
     args: {
       state: {
-        commentOpacity: e.target.value,
+        commentOpacity: (e.target as HTMLInputElement).value,
       },
     },
   });
@@ -45,10 +50,10 @@ commentOpacityInputEl.addEventListener("change", async (e) => {
 
 commentSpeedInputEl.addEventListener("change", async (e) => {
   chrome.runtime.sendMessage({
-    id: "merge-state",
+    id: Message.MERGE_SETTINGS,
     args: {
       state: {
-        commentSpeed: e.target.value,
+        commentSpeed: (e.target as HTMLInputElement).value,
       },
     },
   });
@@ -57,7 +62,7 @@ commentSpeedInputEl.addEventListener("change", async (e) => {
 (async () => {
   chrome.runtime.sendMessage(
     {
-      id: "get-state",
+      id: Message.GET_SETTINGS,
     },
     (response) => {
       const state = response;

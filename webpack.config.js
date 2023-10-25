@@ -15,10 +15,16 @@ module.exports = (env) => {
 
   const config = {
     entry: {
-      content: "./src/content",
-      background: "./src/background.js",
+      content: {
+        import: "./src/entrypoints/content.ts",
+        filename: "./content.js",
+      },
+      background: {
+        import: "./src/entrypoints/background.ts",
+        filename: "./background.js",
+      },
       popup: {
-        import: "./src/popup/index.js",
+        import: "./src/entrypoints/popup/index.ts",
         filename: "./popup/index.js",
       },
     },
@@ -35,9 +41,12 @@ module.exports = (env) => {
 
       new CopyPlugin({
         patterns: [
-          { from: "./src/popup/index.html", to: "./popup/index.html" },
           {
-            from: "./src/popup/bootstrap.min.css",
+            from: "./src/entrypoints/popup/index.html",
+            to: "./popup/index.html",
+          },
+          {
+            from: "./src/entrypoints/popup/bootstrap.min.css",
             to: "./popup/bootstrap.min.css",
           },
           { from: "./src/icons", to: "./icons" },
@@ -60,6 +69,11 @@ module.exports = (env) => {
     module: {
       rules: [
         {
+          test: /\.tsx?$/,
+          use: "ts-loader",
+          exclude: /node_modules/,
+        },
+        {
           test: /\.(js|jsx)$/i,
           exclude: ["/node_modules/"],
           loader: "babel-loader",
@@ -78,7 +92,7 @@ module.exports = (env) => {
       ],
     },
     resolve: {
-      extensions: [".jsx", ".js", "..."],
+      extensions: [".tsx", ".ts", ".js"],
     },
     optimization: {
       minimize: false,
