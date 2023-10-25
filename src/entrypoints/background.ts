@@ -6,12 +6,12 @@ import {
   Message,
   SetSettingsRequest,
 } from "../messaging";
-import { CommentSettings, OpacityLevel, SpeedLevel } from "../settings";
+import { Settings, OpacityLevel, SpeedLevel } from "../settings";
 import { fetchComments } from "../youtube";
 
 const API_KEY = process.env.API_KEY;
 
-let settings: CommentSettings = {
+let settings: Settings = {
   commentsVisible: true,
   commentOpacity: OpacityLevel.HIGH,
   commentSpeed: SpeedLevel.HIGH,

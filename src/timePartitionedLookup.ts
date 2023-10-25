@@ -1,15 +1,15 @@
 /**
- * Map of buckets indexed by timestamp section
+ * Lookup of arrays indexed by time interval
  */
-export class TimestampBucketMap<T> {
+export class TimePartitionedLookup<T> {
   private interval: number;
   private replicationRange: number;
   private buckets: Map<number, T[]>;
 
   /**
-   * Create a TimestampBucketMap
+   * Create a TimePartitionedLookup
    *
-   * @param {number} interval Interval of time in seconds each bucket stores data for
+   * @param {number} interval Interval of time in seconds each partition stores data for
    * @param {number} replicationRange Plus-minus range of neighboring buckets to replicate data into
    */
   constructor(interval: number, replicationRange: number) {
@@ -18,8 +18,8 @@ export class TimestampBucketMap<T> {
     this.buckets = new Map();
   }
 
-  put(timestamp: number, data: T) {
-    const key = Math.floor(timestamp / this.interval);
+  put(time: number, data: T) {
+    const key = Math.floor(time / this.interval);
     for (
       let i = key - this.replicationRange;
       i <= key + this.replicationRange;
@@ -34,8 +34,8 @@ export class TimestampBucketMap<T> {
     }
   }
 
-  get(timestamp: number) {
-    const key = Math.floor(timestamp / this.interval);
+  get(time: number) {
+    const key = Math.floor(time / this.interval);
     const bucket = this.buckets.get(key);
     if (bucket) {
       return bucket;

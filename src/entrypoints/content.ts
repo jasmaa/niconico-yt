@@ -5,11 +5,11 @@ import {
   Message,
   SetSettingsRequest,
 } from "../messaging";
-import { CommentSettings } from "../settings";
-import { TimestampBucketMap } from "../timestampBucketMap";
+import { Settings } from "../settings";
+import { TimePartitionedLookup } from "../timePartitionedLookup";
 import { getIsVideoUrl, getVideoId, parseVideoTimestamps } from "../youtube";
 
-interface Comment {
+interface CommentView {
   text: string;
   time: number;
   displayEntropy: number;
@@ -28,13 +28,13 @@ interface Comment {
   let canvas: HTMLCanvasElement;
   let ctx: CanvasRenderingContext2D;
 
-  let settings: CommentSettings;
+  let settings: Settings;
 
   let videoId: string;
   let pageToken: string = null;
   let currentRawUrl = window.location.href;
 
-  const comments = new TimestampBucketMap<Comment>(1, 20);
+  const comments = new TimePartitionedLookup<CommentView>(1, 20);
 
   async function updateComments() {
     if (!videoId || !canvas) {
@@ -68,7 +68,7 @@ interface Comment {
       if (commentText.length <= COMMENT_TEXT_MAX_LENGTH) {
         const videoTimestamps = parseVideoTimestamps(commentText);
         for (const videoTimestamp of videoTimestamps) {
-          const comment: Comment = {
+          const comment: CommentView = {
             text: commentText,
             time: videoTimestamp,
             displayEntropy: Math.random(),
