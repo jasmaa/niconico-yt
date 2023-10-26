@@ -1,10 +1,10 @@
 import { FetchCommentsResponse } from "./messaging";
 
 // https://developers.google.com/youtube/v3/docs/commentThreads/list
-interface ListCommentThreadsResponse {
+export interface ListCommentThreadsResponse {
   kind: string;
   etag: string;
-  nextPageToken: string;
+  nextPageToken?: string;
   pageInfo: {
     totalResults: number;
     resultsPerPage: number;
@@ -13,7 +13,7 @@ interface ListCommentThreadsResponse {
 }
 
 // https://developers.google.com/youtube/v3/docs/commentThreads#resource
-interface CommentThread {
+export interface CommentThread {
   kind: string;
   etag: string;
   id: string;
@@ -31,26 +31,27 @@ interface CommentThread {
 }
 
 // https://developers.google.com/youtube/v3/docs/comments#resource
-interface Comment {
+export interface Comment {
   kind: string;
   etag: string;
   id: string;
   snippet: {
     authorDisplayName: string;
     authorProfileImageUrl: string;
+    authorChannelUrl?: string;
     authorChannelId: {
       value: string;
     };
-    videoId: string;
+    videoId?: string;
     textDisplay: string;
-    textOriginal: string;
-    parentId: string;
+    textOriginal?: string;
+    parentId?: string;
     canRate: boolean;
     viewerRating: string;
     likeCount: number;
-    moderationStatus: string;
-    publishedAt: Date;
-    updatedAt: Date;
+    moderationStatus?: string;
+    publishedAt: string;
+    updatedAt: string;
   };
 }
 
@@ -77,7 +78,7 @@ export async function fetchComments(
     url.searchParams.append("pageToken", pageToken);
   }
 
-  const resp = await fetch(url);
+  const resp = await fetch(url.toString());
   if (resp.status !== 200) {
     return {
       status: resp.status,
@@ -127,11 +128,12 @@ export function getVideoId(url: URL) {
  * @returns List of video timestamps found in comment text in seconds
  */
 export function parseVideoTimestamps(text: string) {
-  const results = text.matchAll(/(\d{1,2})(:\d{2}){1,2}/g);
+  const results = text.matchAll(/(\d{1,2})(:\d{2})(:\d{2})?/g);
   const videoTimestamps = [...results].map((v) => {
-    return v
+    return [...v]
       .reverse()
       .slice(0, -1)
+      .filter((v) => v)
       .map((v) => parseInt(v.replace(":", "")))
       .reduce((acc, curr, currIdx) => acc + curr * Math.pow(60, currIdx), 0);
   });
