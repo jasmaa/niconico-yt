@@ -55,7 +55,11 @@ interface CommentView {
       id: Message.FETCH_COMMENTS,
       args: { videoId, pageToken },
     };
-    const res: FetchCommentsResponse = await chrome.runtime.sendMessage(req);
+    const res: FetchCommentsResponse = await new Promise((resolve) => {
+      chrome.runtime.sendMessage(req, (res) => {
+        resolve(res);
+      });
+    });
 
     if (res.status !== 200) {
       numFetchesLeft = 0;
@@ -227,10 +231,25 @@ interface CommentView {
     }
   });
 
-  const res: GetSettingsResponse = await chrome.runtime.sendMessage({
-    id: Message.GET_SETTINGS,
-  });
-  settings = res.settings;
+  // Fetch settings with retry
+  for (let i = 0; i < 5; i++) {
+    const res: GetSettingsResponse = await new Promise((resolve) => {
+      chrome.runtime.sendMessage(
+        {
+          id: Message.GET_SETTINGS,
+        },
+        (res) => {
+          resolve(res);
+        }
+      );
+    });
+    if (res) {
+      settings = res.settings;
+      break;
+    } else {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
+  }
 
   initVideo();
   setInterval(updateComments, 2_000);
