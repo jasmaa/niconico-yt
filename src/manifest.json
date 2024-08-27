@@ -14,7 +14,11 @@
       "48": "icons/logo_48.png"
     }
   },
-  "permissions": ["tabs", "*://*.googleapis.com/youtube/v3/commentThreads/*"],
+  "permissions": [
+    "storage",
+    "tabs",
+    "*://*.googleapis.com/youtube/v3/commentThreads/*"
+  ],
   "background": {
     "scripts": ["background.js"]
   },
