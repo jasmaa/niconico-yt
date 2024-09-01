@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.1] - 2024-09-01
+
 ### Fixed
 - Fix message passing and popup size for Chrome
 - Persist settings in local storage
