@@ -3,3 +3,4 @@ test/.tmp
 dist
 .env
 coverage
+.DS_Store
