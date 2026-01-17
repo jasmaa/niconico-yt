@@ -20,6 +20,7 @@ interface CommentView {
   const COMMENT_TEXT_MAX_LENGTH = 200;
   const CANVAS_ID = "niconico-yt-canvas";
   const MAX_NUM_FETCHES = 10;
+  const CANVAS_SCALE = 1;
 
   let numFetchesLeft = MAX_NUM_FETCHES;
   let videoStream: any;
@@ -96,20 +97,23 @@ interface CommentView {
     if (!canvas) {
       canvas = document.createElement("canvas");
       canvas.id = CANVAS_ID;
-      canvas.setAttribute(
-        "style",
-        "width: 100%; position: absolute; pointer-events: none;"
-      );
-      canvas.width = player.clientWidth;
-      canvas.height = player.clientHeight;
+      canvas.style.width = `${player.clientWidth}px`;
+      canvas.style.height = `${player.clientHeight}px`;
+      canvas.style.position = "absolute";
+      canvas.style.pointerEvents = "none";
+      canvas.width = player.clientWidth * CANVAS_SCALE;
+      canvas.height = player.clientHeight * CANVAS_SCALE;
+
       container.appendChild(canvas);
 
       ctx = canvas.getContext("2d");
 
       // Resize canvas
       const resizeObserver = new ResizeObserver((entries) => {
-        ctx.canvas.width = player.clientWidth;
-        ctx.canvas.height = player.clientHeight;
+        ctx.canvas.style.width = `${player.clientWidth}px`;
+        ctx.canvas.style.height = `${player.clientHeight}px`;
+        ctx.canvas.width = player.clientWidth * CANVAS_SCALE;
+        ctx.canvas.height = player.clientHeight * CANVAS_SCALE;
         ctx.fillStyle = "white";
         ctx.lineWidth = 3;
         ctx.lineCap = "round";
@@ -168,7 +172,7 @@ interface CommentView {
     }
   }).observe(document, { subtree: true, childList: true });
 
-  const draw = () => {
+  const draw = (_now: DOMHighResTimeStamp) => {
     requestAnimationFrame(draw);
 
     if (!videoStream || !canvas || !ctx) {
@@ -253,5 +257,5 @@ interface CommentView {
 
   initVideo();
   setInterval(updateComments, 2_000);
-  draw();
+  requestAnimationFrame(draw);
 })();
