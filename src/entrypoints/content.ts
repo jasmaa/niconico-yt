@@ -172,7 +172,11 @@ interface CommentView {
     }
   }).observe(document, { subtree: true, childList: true });
 
-  const draw = (_now: DOMHighResTimeStamp) => {
+  let lastVideoTime = 0;
+  let lastAnimTime = 0;
+  let lastTime = 0;
+
+  const draw = (now: DOMHighResTimeStamp) => {
     requestAnimationFrame(draw);
 
     if (!videoStream || !canvas || !ctx) {
@@ -183,7 +187,20 @@ interface CommentView {
       return;
     }
 
-    const currentTime = videoStream.currentTime;
+    // Smooth comment scrolling by linearly predicting next video time
+    // using animation time when video time does not update.
+    const currentVideoTime = videoStream.currentTime;
+    const videoTimeDiff = currentVideoTime - lastVideoTime;
+    const animTimeDiff = (now - lastAnimTime) / 1000;
+
+    const currentTime =
+      videoTimeDiff <= 0.0001 && !videoStream.paused
+        ? lastTime + animTimeDiff
+        : currentVideoTime;
+
+    lastVideoTime = currentVideoTime;
+    lastAnimTime = now;
+    lastTime = currentTime;
 
     switch (settings.commentOpacity) {
       case "high":
