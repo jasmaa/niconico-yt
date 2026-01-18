@@ -31,10 +31,6 @@ module.exports = (env) => {
     output: {
       path: path.resolve(__dirname, "dist"),
     },
-    devServer: {
-      open: true,
-      host: "localhost",
-    },
     plugins: [
       // Add your plugins here
       // Learn more about plugins from https://webpack.js.org/configuration/plugins/
