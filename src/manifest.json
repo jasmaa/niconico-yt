@@ -1,5 +1,5 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
   "name": "niconico-yt",
   "version": "<AUTO FILLED>",
   "description": "NicoNico style comments on Youtube",
@@ -7,8 +7,7 @@
     "48": "icons/logo_48.png",
     "96": "icons/logo_96.png"
   },
-  "browser_action": {
-    "browser_style": true,
+  "action": {
     "default_popup": "popup/index.html",
     "default_icon": {
       "48": "icons/logo_48.png"
@@ -18,22 +17,39 @@
     "gecko": {
       "id": "{67e25f18-5414-4ff6-9ba8-61134cc9c0dd}",
       "data_collection_permissions": {
-        "required": ["none"]
+        "required": [
+          "none"
+        ]
       }
     }
   },
   "permissions": [
     "storage",
-    "tabs",
+    "tabs"
+  ],
+  "host_permissions": [
     "*://*.googleapis.com/youtube/v3/commentThreads/*"
   ],
+  "externally_connectable": {
+    "matches": [
+      "*://*.youtube.com/*"
+    ]
+  },
   "background": {
-    "scripts": ["background.js"]
+    "service_worker": "background.js",
+    "type": "module",
+    "scripts": [
+      "background.js"
+    ]
   },
   "content_scripts": [
     {
-      "matches": ["*://*.youtube.com/*"],
-      "js": ["content.js"]
+      "matches": [
+        "*://*.youtube.com/*"
+      ],
+      "js": [
+        "content.js"
+      ]
     }
   ]
 }
