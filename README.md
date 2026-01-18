@@ -4,7 +4,7 @@
 
 NicoNico-style comments on Youtube.
 
-![niconico-yt screenshot](./docs/screenshot_01.png)
+![niconico-yt screenshot](./docs/screenshot_02.png)
 
 ## Development
 
