@@ -17,39 +17,24 @@
     "gecko": {
       "id": "{67e25f18-5414-4ff6-9ba8-61134cc9c0dd}",
       "data_collection_permissions": {
-        "required": [
-          "none"
-        ]
+        "required": ["none"]
       }
     }
   },
-  "permissions": [
-    "storage",
-    "tabs"
-  ],
-  "host_permissions": [
-    "*://*.googleapis.com/youtube/v3/commentThreads/*"
-  ],
+  "permissions": ["storage", "tabs"],
+  "host_permissions": ["*://*.googleapis.com/youtube/v3/commentThreads/*"],
   "externally_connectable": {
-    "matches": [
-      "*://*.youtube.com/*"
-    ]
+    "matches": ["*://*.youtube.com/*"]
   },
   "background": {
     "service_worker": "background.js",
     "type": "module",
-    "scripts": [
-      "background.js"
-    ]
+    "scripts": ["background.js"]
   },
   "content_scripts": [
     {
-      "matches": [
-        "*://*.youtube.com/*"
-      ],
-      "js": [
-        "content.js"
-      ]
+      "matches": ["*://*.youtube.com/*"],
+      "js": ["content.js"]
     }
   ]
 }

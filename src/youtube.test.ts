@@ -17,6 +17,10 @@ describe("test parseVideoTimestamps", () => {
     ["1:00:00:00", [3600]],
     ["0:00 0:01", [0, 1]],
     ["I like 0:05, 0:03, and 1:10", [5, 3, 70]],
+    [
+      "I love it when Miku sings at 0:39 0:39 0:39 0:39 0:39 0:39 0:39 0:39 0:39 0:39",
+      [39],
+    ],
     ["", []],
     ["no timestamps", []],
   ])('should convert "%s" to %s', (text, expectedTimestamps) => {

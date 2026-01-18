@@ -137,5 +137,6 @@ export function parseVideoTimestamps(text: string) {
       .map((v) => parseInt(v.replace(":", "")))
       .reduce((acc, curr, currIdx) => acc + curr * Math.pow(60, currIdx), 0);
   });
-  return videoTimestamps;
+  const dedupedVideoTimestamps = Array.from(new Set(videoTimestamps));
+  return dedupedVideoTimestamps;
 }
