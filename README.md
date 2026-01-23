@@ -1,6 +1,8 @@
 # niconico-yt
 
 [![Mozilla Add-on](https://img.shields.io/amo/v/niconico-yt)](https://addons.mozilla.org/en-US/firefox/addon/niconico-yt/)
+[![Chrome Web Store](https://img.shields.io/chrome-web-store/v/ljbjmghfdjlkacjaiceiadjgdoaedofk
+)](https://chromewebstore.google.com/detail/ljbjmghfdjlkacjaiceiadjgdoaedofk)
 
 NicoNico-style comments on Youtube.
 
