@@ -15,9 +15,14 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: "20"
-      - run: yarn install --immutable --immutable-cache --check-cache
-      - run: yarn test
-      - run: yarn build
+      - name: Install dependencies
+        run: yarn install --immutable --immutable-cache --check-cache
+      - name: Create dummy .env file
+        run: echo 'API_KEY="dummy"' > .env
+      - name: Run tests
+        run: yarn test
+      - name: Run build
+        run: yarn build
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v5
         with:
