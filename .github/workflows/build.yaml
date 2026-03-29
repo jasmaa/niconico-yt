@@ -18,7 +18,7 @@ jobs:
       - name: Install dependencies
         run: yarn install --immutable --immutable-cache --check-cache
       - name: Create dummy .env file
-        run: echo 'API_KEY="dummy"' > .env
+        run: cp sample.env .env
       - name: Run tests
         run: yarn test
       - name: Run build
