@@ -3,4 +3,6 @@ module.exports = {
   transform: {
     "^.+\\.(ts|tsx)?$": "ts-jest",
   },
+  collectCoverage: true,
+  coverageReporters: ["json", "lcov", "text", "html"],
 };

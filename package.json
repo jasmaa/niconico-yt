@@ -4,7 +4,7 @@
   "scripts": {
     "build": "webpack --mode=production --node-env=production",
     "build:dev": "webpack --mode=development",
-    "test": "prettier --check . && jest",
+    "test": "prettier --check . && jest --coverage",
     "format": "prettier --write ."
   },
   "devDependencies": {
