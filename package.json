@@ -1,6 +1,6 @@
 {
   "name": "niconico-yt",
-  "version": "2.2.3",
+  "version": "2.2.4",
   "scripts": {
     "build": "webpack --mode=production --node-env=production",
     "build:dev": "webpack --mode=development",
